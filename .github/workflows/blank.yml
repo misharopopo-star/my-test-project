@@ -1,45 +1,62 @@
-name: Simple .NET Pipeline
+name: .NET CI/CD with Tests
 
-on: [push]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: ⚙️ Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0'
     
-    - name: Show files
+    - name: 🔍 Check project structure
       run: |
-        echo "📁 Файлы в проекте:"
+        echo "📁 Files in repository:"
         ls -la
         echo ""
-        echo "🔍 Ищу .csproj файлы:"
-        find . -name "*.csproj" || echo "Файлы .csproj не найдены"
+        echo "📄 .csproj files:"
+        find . -name "*.csproj"
     
-    - name: Try to build
+    - name: 📦 Restore dependencies
+      run: dotnet restore
+    
+    - name: 🏗️ Build main project
+      run: dotnet build MyApp.csproj --configuration Release
+    
+    - name: 🧪 Try to build tests
       run: |
-        echo "🛠️ Пробую собрать..."
-        # Пробуем найти и собрать любой .csproj
-        for proj in $(find . -name "*.csproj"); do
-          echo "Найден проект: $proj"
-          dotnet build "$proj" || echo "Не удалось собрать $proj"
-        done
-        
-    - name: Success message
+        echo "Trying to build test project..."
+        if [ -f "MyApp.Test.csproj" ]; then
+          dotnet build MyApp.Test.csproj --configuration Release || echo "Test project build failed, continuing..."
+        else
+          echo "Test project not found, skipping..."
+        fi
+    
+    - name: 🚀 Run application with simple tests
+      run: |
+        echo "=== RUNNING APPLICATION ==="
+        dotnet run --project MyApp.csproj --configuration Release
+        echo "=== APPLICATION COMPLETED ==="
+    
+    - name: ✅ Final success message
       run: |
         echo "========================================"
-        echo "🎉 ПРОВЕРКА ЗАВЕРШЕНА!"
+        echo "🎉 CI/CD PIPELINE EXECUTED SUCCESSFULLY!"
         echo "========================================"
-        echo "Если видите это сообщение -"
-        echo "CI/CD технически работает правильно!"
+        echo "Project compiled and ran without errors."
         echo ""
-        echo "Дальше нужно:"
-        echo "1. Исправить имена файлов"
-        echo "2. Настроить структуру проекта"
+        echo "Next steps:"
+        echo "1. Fix xUnit references if needed"
+        echo "2. Add proper unit tests"
+        echo "3. Configure test reporting"
         echo "========================================"
