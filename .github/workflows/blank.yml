@@ -1,4 +1,4 @@
-name: My First CI
+name: .NET CI/CD Pipeline
 
 on:
   push:
@@ -7,18 +7,55 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: 📥 Download code
+    - name: 📥 Загружаю код
       uses: actions/checkout@v4
-
-    - name: 🎉 First step
-      run: echo "HELLO! CI/CD IS WORKING!"
-
-    - name: 📊 Show info
+      
+    - name: ⚙️ Устанавливаю .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0'
+    
+    - name: 📦 Восстанавливаю зависимости
       run: |
-        echo "Date: $(date)"
-        echo "Repository: ${{ github.repository }}"
-        echo "Success! ✅"
+        echo "Восстанавливаю основной проект..."
+        dotnet restore MyApp.csproj
+        echo "Восстанавливаю тестовый проект..."
+        dotnet restore MyApp.Tests.csproj
+    
+    - name: 🏗️ Собираю проекты
+      run: |
+        echo "Собираю основное приложение..."
+        dotnet build MyApp.csproj --configuration Release --no-restore
+        echo "Собираю тесты..."
+        dotnet build MyApp.Tests.csproj --configuration Release --no-restore
+    
+    - name: 🧪 Запускаю тесты
+      run: |
+        echo "Запускаю unit-тесты..."
+        dotnet test MyApp.Tests.csproj --no-build --verbosity normal
+        echo "✅ Все тесты пройдены!"
+    
+    - name: 🚀 Запускаю приложение
+      run: |
+        echo "Запускаю программу..."
+        dotnet run --project MyApp.csproj --configuration Release
+        echo "✅ Программа работает корректно!"
+    
+    - name: 📊 Генерация отчета
+      run: |
+        echo "=========================================="
+        echo "🎉 CI/CD ПАЙПЛАЙН УСПЕШНО ВЫПОЛНЕН! 🎉"
+        echo "=========================================="
+        echo "✅ Код загружен"
+        echo "✅ .NET 8 установлен"
+        echo "✅ Зависимости восстановлены"
+        echo "✅ Проекты собраны"
+        echo "✅ Тесты выполнены"
+        echo "✅ Приложение запущено"
+        echo "=========================================="
+        echo "🏁 ВСЕ ПРОВЕРКИ ПРОЙДЕНЫ УСПЕШНО!"
+        echo "=========================================="
