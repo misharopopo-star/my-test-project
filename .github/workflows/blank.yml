@@ -1,0 +1,24 @@
+name: My First CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Download code
+      uses: actions/checkout@v4
+
+    - name: 🎉 First step
+      run: echo "HELLO! CI/CD IS WORKING!"
+
+    - name: 📊 Show info
+      run: |
+        echo "Date: $(date)"
+        echo "Repository: ${{ github.repository }}"
+        echo "Success! ✅"
