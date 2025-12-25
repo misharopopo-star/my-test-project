@@ -5,7 +5,7 @@ class Program
 {
     static void Main()
     {
-        Console.WriteLine("🎯 ПРИВЕТ! CI/CD РАБОТАЕТ!");
+        Console.WriteLine("🎯 ПРИВЕТ! CI/CD ПАЙПЛАЙН ЗАПУЩЕН УСПЕШНО");
         Console.WriteLine($"Сейчас: {DateTime.Now}");
         
         int sum = Add(10, 20);
